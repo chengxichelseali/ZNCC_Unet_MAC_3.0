@@ -53,11 +53,7 @@ def _extract_uv(pred):
 
 
 def warp_image_with_displacement(reference_img, pred):
-    """
-    Warp the reference image using predicted displacement u,v.
-    Supports pred with 2ch or 5ch.
-    padding_mode='zeros' for MPS compatibility.
-    """
+
     B, C, H, W = reference_img.shape
     u, v = _extract_uv(pred)
 
@@ -66,11 +62,10 @@ def warp_image_with_displacement(reference_img, pred):
     y_grid, x_grid = torch.meshgrid(y_coords, x_coords, indexing='ij')
     base_grid = torch.stack((x_grid, y_grid), dim=2).unsqueeze(0).repeat(B, 1, 1, 1)
 
-    # normalized flow for grid_sample
     norm_disp_u = u[:, 0] * (2.0 / W)
-    norm_disp_v = -v[:, 0] * (2.0 / H)  # keep your sign convention
+    norm_disp_v = -v[:, 0] * (2.0 / H)  
 
-    flow = torch.stack([norm_disp_u, norm_disp_v], dim=-1)  # [B,H,W,2]
+    flow = torch.stack([norm_disp_u, norm_disp_v], dim=-1)
     warped_grid = base_grid + flow
 
     warped_img = F.grid_sample(
@@ -83,10 +78,8 @@ def warp_image_with_displacement(reference_img, pred):
     return warped_img
 
 
-def save_displacement_to_csv(pred, filename="outputs/displacement.csv", roi_mask=None):
-    """
-    Save u,v only. pred can be [B,5,H,W] or [B,2,H,W].
-    """
+def save_displacement_to_csv(pred, filename="outputs displacement.csv", roi_mask=None):
+
     if roi_mask is not None:
         pred = pred.clone()
         pred[:, 0:2] = pred[:, 0:2] * roi_mask.repeat(1, 2, 1, 1)
@@ -104,9 +97,7 @@ def save_displacement_to_csv(pred, filename="outputs/displacement.csv", roi_mask
 
 
 def visualize_displacement(pred, cmap='viridis', save_path=None):
-    """
-    Visualize u,v only.
-    """
+
     u = pred[0, 0].detach().cpu().numpy()
     v = pred[0, 1].detach().cpu().numpy()
 
@@ -153,11 +144,7 @@ def plot_loss_curve(losses, save_path=None, smooth_window=1, title='Training Los
 
 
 def compute_benchmark_strain_from_uv(pred):
-    """
-    Compute benchmark strain from predicted u,v using torch.gradient (sanity check).
-    pred: [B,5,H,W] or [B,2,H,W]
-    Return exx, eyy, exy as [H,W] (first batch).
-    """
+
     u = pred[0, 0]
     v = pred[0, 1]
 
@@ -173,14 +160,7 @@ def compute_benchmark_strain_from_uv(pred):
 
 
 def save_all_results(pred, reference, save_prefix_csv, save_prefix_img, save_benchmark=True):
-    """
-    pred: [B,5,H,W] (recommended) or [B,2,H,W]
-    Saves:
-      - displacement csv (u,v)
-      - strain npy (predicted exx,eyy,exy if available)
-      - figure with u,v,exx,eyy,exy
-      - optional: benchmark strain from u,v as another npy
-    """
+
     save_displacement_to_csv(
         pred,
         filename=f"{save_prefix_csv}_displacement.csv"
