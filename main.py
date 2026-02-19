@@ -10,9 +10,9 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 from cnn_model import DisplacementCNN
-from utils import add_coordinate_channels
-from postprocess import save_all_results
+from utils import add_coordinate_channels, save_all_results
 import train
+
 
 
 reference_path = "/Users/chelseali/Downloads/UNET_ZNCC_NO_ROI-main/sin_0_imagesize512.jpg"
