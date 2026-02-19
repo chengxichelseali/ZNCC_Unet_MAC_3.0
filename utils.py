@@ -40,7 +40,6 @@ def add_coordinate_channels(tensor):
     x_channel = x_grid.unsqueeze(0).expand(B, -1, -1).unsqueeze(1)
     y_channel = y_grid.unsqueeze(0).expand(B, -1, -1).unsqueeze(1)
 
-    # return coords too (for compatibility with your call sites), but they are not used in loss anymore
     return torch.cat([tensor, x_channel, y_channel], dim=1), x_coords, y_coords
 
 
