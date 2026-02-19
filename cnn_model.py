@@ -50,7 +50,7 @@ class UNet(nn.Module):
         self.up1 = nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2)
         self.dec1 = UNetBlock(64, 32)
 
-        self.out_conv = nn.Conv2d(32, 5, kernel_size=1)
+        self.out_conv = nn.Conv2d(32, 5, kernel_size=1) #2变5
 
     def forward(self, x):
         enc1 = self.enc1(x)
